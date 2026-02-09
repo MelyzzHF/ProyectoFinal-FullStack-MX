@@ -24,12 +24,10 @@ db.connect(err => {
 app.post('/registro', (req, res) => {
     const { username, email, password } = req.body;
     
-    // Validar que no falten campos
     if (!username || !email || !password) {
         return res.status(400).json({ error: 'Todos los campos son obligatorios' });
     }
     
-    // Verificar si el email ya existe
     const checkQuery = 'SELECT * FROM users WHERE email = ?';
     db.query(checkQuery, [email], (err, results) => {
         if (err) {
@@ -72,7 +70,7 @@ app.post('/login', (req, res) => {
         
         const user = results[0];
         
-        // Generar token JWT real
+        // Generar token JWT 
         const token = jwt.sign(
             { 
                 id: user.id, 
