@@ -1,23 +1,73 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
-    <style>
-        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f0f0; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 300px; text-align: center; }
-        input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; }
-        button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background-color: #218838; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - M&X Studio</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <div class="card">
-        <h2>Iniciar Sesión</h2>
-        <input type="email" id="user" placeholder="Correo electrónico">
-        <input type="password" id="pass" placeholder="Contraseña">
-        <button onclick="login()">Entrar</button>
-    </div>
-    <script src="app.js"></script>
+    <div class="container">
+        
+        <div id="vista-bienvenida" class="vista active">
+            <h2 class="brand-title">M&X Studio</h2>
+            <p class="brand-subtitle">Melissa & Ximena</p>
+            
+            <p class="brand-description">¡Bienvenido!</p>
+        
+            <div class="botones-inicio">
+                <button onclick="mostrarVista('login')" class="btn-primary">Iniciar Sesión</button>
+                <button onclick="mostrarVista('registro')" class="btn-success">Registrarse</button>
+            </div>
+        </div>
+        
+        <div id="vista-login" class="vista">
+            <h2>Iniciar Sesión</h2>
+            <div id="mensaje-login" class="mensaje"></div>
+            <form onsubmit="login(event)">
+                <div class="form-group">
+                    <label for="login-email">Correo Electrónico</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Contraseña</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn-primary">Entrar</button>
+                <button type="button" class="btn-secondary" onclick="mostrarVista('bienvenida')">Volver</button>
+            </form>
+            <div class="link">
+                ¿No tienes cuenta? <a onclick="mostrarVista('registro')">Regístrate aquí</a>
+            </div>
+        </div>
+        
+        <div id="vista-registro" class="vista">
+            <h2>Registro</h2>
+            <div id="mensaje-registro" class="mensaje"></div>
+            <form onsubmit="registro(event)">
+                <div class="form-group">
+                    <label for="registro-nombre">Nombre Completo</label>
+                    <input type="text" id="registro-nombre" required>
+                </div>
+                <div class="form-group">
+                    <label for="registro-email">Correo Electrónico</label>
+                    <input type="email" id="registro-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="registro-password">Contraseña</label>
+                    <input type="password" id="registro-password" required minlength="6">
+                </div>
+                <button type="submit" class="btn-success">Crear Cuenta</button>
+                <button type="button" class="btn-secondary" onclick="mostrarVista('bienvenida')">Volver</button>
+            </form>
+            <div class="link">
+                ¿Ya tienes cuenta? <a onclick="mostrarVista('login')">Inicia sesión aquí</a>
+            </div>
+        </div>
+
+    </div> <script src="registro.js"></script>
 </body>
+
 </html>
