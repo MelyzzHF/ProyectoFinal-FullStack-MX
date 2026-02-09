@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Inventario - Zara Clone</title>
+</head>
+
+<body>
+    <div class="card">
+        <h2>Inventario de Tienda</h2>
+        <div class="agregar-box">
+            <input type="text" id="nombre-ropa" placeholder="Nombre">
+            <input type="text" id="precio-ropa" placeholder="Precio">
+            <button onclick="agregarRopa()">Agregar Prenda</button>
+        </div>
+        <hr>
+        <h3>Lista de Ropa</h3>
+        <ul id="lista-ropa"></ul>
+        <br>
+        <button onclick="cerrarSesion()" style="background-color: #6c757d;">Cerrar Sesión</button>
+    </div>
+    <script src="app.js"></script>
+</body>
+
+</html>
