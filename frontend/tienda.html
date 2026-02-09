@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventario</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9; }
+        .card { background: white; padding: 20px; border-radius: 8px; max-width: 600px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .agregar-box { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; flex: 1; }
+        button { padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        ul { list-style: none; padding: 0; }
+        li { background: #fff; border-bottom: 1px solid #eee; padding: 10px; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Inventario de Tienda</h2>
+        <div class="agregar-box">
+            <input type="text" id="nombre-ropa" placeholder="Nombre">
+            <input type="text" id="precio-ropa" placeholder="Precio">
+            <button onclick="agregarRopa()">Agregar Prenda</button>
+        </div>
+        <hr>
+        <h3>Lista de Ropa</h3>
+        <ul id="lista-ropa"></ul>
+        <br>
+        <button onclick="cerrarSesion()" style="background-color: #6c757d;">Cerrar Sesión</button>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
