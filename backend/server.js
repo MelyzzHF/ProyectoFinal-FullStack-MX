@@ -1,142 +1,204 @@
 require('dotenv').config();
 const express = require('express');
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise'); // Usamos promesas para mejor manejo asíncrono
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs'); 
+const bcrypt = require('bcryptjs');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const db = mysql.createConnection({
+// Exponer la carpeta uploads para que el frontend pueda ver las imágenes
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Configuración de Multer para guardar imágenes
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const dir = './uploads';
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+        cb(null, dir);
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + file.originalname.replace(/\s+/g, '_'));
+    }
+});
+const upload = multer({ storage });
+
+// Conexión a Base de Datos (Pool de conexiones)
+const pool = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
-});
-
-db.connect(err => {
-    if (err) console.error('Error BD:', err);
-    else console.log('Conectado a MySQL');
+    database: process.env.DB_NAME,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
 const SECRET_KEY = process.env.JWT_SECRET;
 
+// ==========================================
+// MIDDLEWARES OBLIGATORIOS
+// ==========================================
 const verificarToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; 
+    const token = authHeader && authHeader.split(' ')[1];
     if (!token) return res.status(401).json({ error: 'Acceso denegado. Token requerido.' });
 
     jwt.verify(token, SECRET_KEY, (err, user) => {
         if (err) return res.status(403).json({ error: 'Token inválido o expirado.' });
-        req.user = user; 
+        req.user = user;
         next();
     });
 };
 
 const soloAdmin = (req, res, next) => {
     if (req.user.role !== 'admin') {
-        return res.status(403).json({ error: 'Acceso denegado. Se requieren permisos de administrador.' });
+        return res.status(403).json({ error: 'Acceso denegado. Permisos de administrador requeridos.' });
     }
     next();
 };
 
-const validarRegistroBody = (req, res, next) => {
-    const { username, email, password } = req.body;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!username || username.trim().length < 3) return res.status(400).json({ error: 'Nombre inválido' });
-    if (!email || !emailRegex.test(email)) return res.status(400).json({ error: 'Correo electrónico no válido' });
-    if (!password || password.length < 6) return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+const validarRegistro = (req, res, next) => {
+    const { fullName, email, password } = req.body;
+    if (!fullName || fullName.length < 3) return res.status(400).json({ error: 'Nombre inválido' });
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Correo inválido' });
+    if (!password || password.length < 6) return res.status(400).json({ error: 'Contraseña mínima de 6 caracteres' });
     next();
 };
 
-app.post('/registro', validarRegistroBody, async (req, res) => {
-    const { username, email, password } = req.body;
-    
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
-    const checkQuery = 'SELECT * FROM users WHERE email = ?';
-    db.query(checkQuery, [email], (err, results) => {
-        if (err) return res.status(500).json({ error: 'Error en el servidor' });
-        if (results.length > 0) return res.status(400).json({ error: 'Este correo ya está registrado' });
+// ==========================================
+// RUTAS DE AUTENTICACIÓN
+// ==========================================
+app.post('/api/auth/register', validarRegistro, async (req, res, next) => {
+    try {
+        const { fullName, email, password } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 10);
         
-        const insertQuery = 'INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, "user")';
-        db.query(insertQuery, [username, email, hashedPassword], (err, result) => {
-            if (err) return res.status(500).json({ error: 'Error al registrar usuario' });
-            res.json({ mensaje: 'Usuario registrado exitosamente', id: result.insertId });
-        });
-    });
+        const [existing] = await pool.query('SELECT * FROM accounts WHERE email = ?', [email]);
+        if (existing.length > 0) return res.status(400).json({ error: 'El correo ya está registrado' });
+        
+        const [result] = await pool.query(
+            'INSERT INTO accounts (full_name, email, password_hash, role) VALUES (?, ?, ?, "user")',
+            [fullName, email, hashedPassword]
+        );
+        res.status(201).json({ mensaje: 'Cuenta creada exitosamente', id: result.insertId });
+    } catch (error) { next(error); }
 });
 
-app.post('/login', (req, res) => {
-    const { email, password } = req.body;
-    const query = 'SELECT * FROM users WHERE email = ?';
-    
-    db.query(query, [email], async (err, results) => {
-        if (err) return res.status(500).json({ error: 'Error en el servidor' });
-        if (results.length === 0) return res.status(401).json({ error: 'Usuario no registrado' });
+app.post('/api/auth/login', async (req, res, next) => {
+    try {
+        const { email, password } = req.body;
+        const [results] = await pool.query('SELECT * FROM accounts WHERE email = ?', [email]);
+        
+        if (results.length === 0) return res.status(401).json({ error: 'Credenciales incorrectas' });
         
         const user = results[0];
-        const validPassword = await bcrypt.compare(password, user.password);
-        
-        if (!validPassword) return res.status(401).json({ error: 'Contraseña incorrecta' });
+        const validPassword = await bcrypt.compare(password, user.password_hash);
+        if (!validPassword) return res.status(401).json({ error: 'Credenciales incorrectas' });
         
         const token = jwt.sign(
-            { id: user.id, email: user.email, role: user.role }, 
-            SECRET_KEY, 
-            { expiresIn: '2h' }
+            { id: user.id, email: user.email, role: user.role },
+            SECRET_KEY,
+            { expiresIn: '4h' }
         );
         
-        res.json({ 
-            token: token,
-            usuario: { id: user.id, username: user.username, email: user.email, role: user.role }
+        res.json({
+            token,
+            usuario: { id: user.id, fullName: user.full_name, role: user.role, usedDiscount: user.has_used_welcome_discount }
         });
-    });
+    } catch (error) { next(error); }
 });
 
-app.get('/inventario', verificarToken, (req, res) => {
-    db.query('SELECT * FROM tasks', (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(results);
-    });
+// ==========================================
+// RUTAS CRUD PRINCIPAL (ROPA)
+// ==========================================
+
+// 1. GET: Listado con paginación y filtros
+app.get('/api/items', async (req, res, next) => {
+    try {
+        const { search, category, page = 1, limit = 10 } = req.query;
+        const offset = (page - 1) * limit;
+        
+        let query = 'SELECT p.*, c.label as category_name, i.image_path FROM products p LEFT JOIN categories c ON p.category_id = c.id LEFT JOIN product_images i ON p.id = i.product_id AND i.is_primary = TRUE WHERE 1=1';
+        const params = [];
+
+        if (search) {
+            query += ' AND p.name LIKE ?';
+            params.push(`%${search}%`);
+        }
+        if (category) {
+            query += ' AND c.label = ?';
+            params.push(category);
+        }
+
+        query += ' LIMIT ? OFFSET ?';
+        // Convertimos a números para el paginado
+        params.push(Number(limit), Number(offset));
+
+        const [items] = await pool.query(query, params);
+        res.json(items);
+    } catch (error) { next(error); }
 });
 
-app.post('/inventario', verificarToken, soloAdmin, (req, res) => {
-    const { nombre, detalles } = req.body; 
-    if (!nombre || !detalles) return res.status(400).json({ error: 'Nombre y detalles son obligatorios' });
-
-    const sql = 'INSERT INTO tasks (title, description, completed, user_id, created_at) VALUES (?, ?, 0, ?, NOW())';
-    db.query(sql, [nombre.trim(), detalles.trim(), req.user.id], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ mensaje: 'Prenda agregada al inventario', id: result.insertId });
-    });
+// 2. GET: Vista detalle
+app.get('/api/items/:id', async (req, res, next) => {
+    try {
+        const [product] = await pool.query('SELECT * FROM products WHERE id = ?', [req.params.id]);
+        if (product.length === 0) return res.status(404).json({ error: 'Prenda no encontrada' });
+        
+        const [images] = await pool.query('SELECT image_path, is_primary FROM product_images WHERE product_id = ?', [req.params.id]);
+        const [variants] = await pool.query('SELECT size, color, stock_quantity FROM product_variants WHERE product_id = ?', [req.params.id]);
+        
+        res.json({ ...product[0], images, variants });
+    } catch (error) { next(error); }
 });
 
-app.put('/inventario/:id', verificarToken, soloAdmin, (req, res) => {
-    const { id } = req.params;
-    const { nombre, detalles } = req.body;
-    if (!nombre || !detalles) return res.status(400).json({ error: 'Los campos no pueden estar vacíos' });
+// 3. POST: Crear registro con imagen (Solo Admin)
+app.post('/api/items', verificarToken, soloAdmin, upload.single('image'), async (req, res, next) => {
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+        const { sku, name, brand, basePrice, description, categoryId } = req.body;
+        
+        // Insertar producto
+        const [result] = await connection.query(
+            'INSERT INTO products (sku, name, brand, base_price, description, category_id) VALUES (?, ?, ?, ?, ?, ?)',
+            [sku, name, brand, basePrice, description, categoryId || null]
+        );
+        const productId = result.insertId;
 
-    const query = 'UPDATE tasks SET title = ?, description = ? WHERE id = ?';
-    db.query(query, [nombre.trim(), detalles.trim(), id], (err, result) => {
-        if (err) return res.status(500).json({ error: 'Error al actualizar' });
-        res.json({ mensaje: 'Prenda actualizada exitosamente' });
-    });
+        // Insertar imagen si se subió una
+        if (req.file) {
+            const imagePath = `/uploads/${req.file.filename}`;
+            await connection.query(
+                'INSERT INTO product_images (product_id, image_path, is_primary) VALUES (?, ?, TRUE)',
+                [productId, imagePath]
+            );
+        }
+
+        await connection.commit();
+        res.status(201).json({ mensaje: 'Prenda creada con éxito', id: productId });
+    } catch (error) {
+        await connection.rollback();
+        next(error);
+    } finally {
+        connection.release();
+    }
 });
 
-app.delete('/inventario/:id', verificarToken, soloAdmin, (req, res) => {
-    const { id } = req.params;
-    db.query('DELETE FROM tasks WHERE id = ?', [id], (err, result) => {
-        if (err) return res.status(500).json({ error: 'Error al eliminar' });
-        res.json({ mensaje: 'Prenda eliminada exitosamente' });
-    });
-});
-
+// Middleware Global de Manejo de Errores
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ error: 'Error en el servidor' });
+    console.error('Error del servidor:', err);
+    res.status(500).json({ 
+        error: 'Ocurrió un error interno en el servidor.',
+        details: process.env.NODE_ENV === 'development' ? err.message : null 
+    });
 });
 
-app.listen(3000, () => console.log(`Servidor en http://localhost:3000`));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Servidor M&X Studio activo en puerto ${PORT}`));
