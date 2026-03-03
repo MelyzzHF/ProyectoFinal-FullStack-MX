@@ -1,8 +1,12 @@
 require('dotenv').config();
 const express = require('express');
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise'); // Usamos promesas para mejor manejo asíncrono
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
 app.use(cors());
@@ -15,10 +19,7 @@ const db = mysql.createConnection({
     database: 'gestor_tareas'
 });
 
-db.connect(err => {
-    if (err) console.error('Error BD:', err);
-    else console.log('Conectado a MySQL');
-});
+const SECRET_KEY = process.env.JWT_SECRET;
 
 // Registro de nuevos usuarios
 app.post('/registro', (req, res) => {

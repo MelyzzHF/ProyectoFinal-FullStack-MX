@@ -1,0 +1,310 @@
+:root {
+    --bg-color: #d6d0c9;         
+    
+    --card-bg: #fdfcf8;          
+    
+    --text-primary: #2c2c2c;
+    --text-secondary: #666666;   
+    --input-border: #d1ccc4;     
+    
+    --accent-taupe: #c5b4a5;
+    --accent-taupe-dark: #b3a090;
+    --accent-olive: #8c9773;
+    --accent-olive-dark: #7a8563;
+    --danger-soft: #d48f8f;      
+    
+    --font-serif: 'Times New Roman', Garamond, serif;
+    --font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-color);
+    margin: 0;
+    color: var(--text-primary);
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background-color: var(--card-bg);
+    padding: 50px 40px;
+    width: 100%;
+    max-width: 400px;
+    
+    border-radius: 4px;
+    border: 1px solid #ffffff;
+    box-shadow: 0 15px 35px rgba(60, 50, 40, 0.15);
+    
+    text-align: center;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.brand-title {
+    font-family: var(--font-serif);
+    font-size: 3rem;
+    font-weight: normal;
+    margin: 0;
+    color: #1a1a1a;
+    letter-spacing: 1px;
+}
+
+.brand-subtitle {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-top: 5px;
+    margin-bottom: 30px;
+}
+
+.brand-description {
+    font-family: var(--font-sans);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #888;
+    margin-bottom: 30px;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+
+h2 {
+    font-family: var(--font-serif);
+    font-weight: normal;
+    color: var(--text-primary);
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--input-border);
+    border-radius: 2px;
+    font-size: 14px;
+    box-sizing: border-box;
+    background-color: #fafafa;
+    font-family: var(--font-sans);
+    transition: all 0.3s;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--accent-taupe);
+    background-color: #fff;
+    box-shadow: 0 0 5px rgba(197, 180, 165, 0.3);
+}
+
+.botones-inicio {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 2px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s;
+    font-family: var(--font-sans);
+}
+
+.btn-primary {
+    background-color: var(--accent-taupe);
+    color: #2b2b2b;
+}
+.btn-primary:hover { background-color: var(--accent-taupe-dark); }
+
+.btn-success {
+    background-color: var(--accent-olive);
+    color: #fff;
+}
+.btn-success:hover { background-color: var(--accent-olive-dark); }
+
+.btn-secondary {
+    background-color: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--input-border);
+    margin-top: 10px;
+    text-transform: none;
+}
+.btn-secondary:hover { background-color: #f0f0f0; }
+
+.link {
+    margin-top: 20px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+.link a {
+    color: var(--accent-olive);
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.vista { display: none; animation: fadeIn 0.5s; }
+.vista.active { display: block; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.wide-container {
+    max-width: 700px; 
+    padding: 40px;
+}
+
+.agregar-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    align-items: center;
+}
+
+.agregar-box input {
+    margin-bottom: 0;
+}
+
+.divider {
+    height: 1px;
+    background-color: var(--input-border);
+    margin: 25px 0;
+    width: 100%;
+}
+
+.lista-elegante {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+}
+
+.lista-elegante li {
+    background: #fff;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.lista-elegante li strong {
+    color: var(--text-primary);
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    margin-right: 5px;
+}
+
+.acciones {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-editar {
+    background-color: var(--card-bg);
+    border: 1px solid var(--accent-taupe);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-editar:hover {
+    background-color: var(--accent-taupe);
+    color: white;
+}
+
+.btn-eliminar {
+    background-color: var(--card-bg);
+    border: 1px solid var(--danger-soft);
+    color: var(--danger-soft);
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-eliminar:hover {
+    background-color: var(--danger-soft);
+    color: white;
+}
+
+/* Responsividad */
+@media (max-width: 600px) {
+    .container {
+        width: 90%;
+        padding: 30px 20px;
+    }
+
+    .brand-title {
+        font-size: 2.2rem;
+    }
+
+    .wide-container {
+        padding: 20px;
+    }
+
+    .agregar-box {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .agregar-box input, .agregar-box button {
+        width: 100%;
+    }
+
+    .lista-elegante li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .acciones {
+        width: 100%;
+        justify-content: space-between;
+    }
+}

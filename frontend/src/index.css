@@ -1,0 +1,84 @@
+:root {
+  --bg-color: #d6d0c9;         
+  --card-bg: #fdfcf8;          
+  --text-primary: #2c2c2c;
+  --text-secondary: #666666;   
+  --input-border: #d1ccc4;     
+  --accent-taupe: #c5b4a5;
+  --accent-taupe-dark: #b3a090;
+  --accent-olive: #8c9773;
+  --danger-soft: #d48f8f;      
+  --font-serif: 'Times New Roman', Garamond, serif;
+  --font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-color);
+  margin: 0;
+  color: var(--text-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  background-color: var(--card-bg);
+  padding: 50px 40px;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 4px;
+  border: 1px solid #ffffff;
+  box-shadow: 0 15px 35px rgba(60, 50, 40, 0.15);
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* Tipografía de la marca */
+.brand-title {
+  font-family: var(--font-serif);
+  font-size: 3rem;
+  font-weight: normal;
+  margin: 0;
+  color: #1a1a1a;
+  letter-spacing: 1px;
+}
+.brand-subtitle {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  margin-top: 5px;
+  margin-bottom: 30px;
+}
+
+/* Botones y Formularios */
+input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid var(--input-border);
+  border-radius: 2px;
+  box-sizing: border-box;
+  background-color: #fafafa;
+}
+input:focus {
+  outline: none;
+  border-color: var(--accent-taupe);
+}
+button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 10px;
+  transition: background 0.3s;
+}
+.btn-primary { background-color: var(--accent-taupe); color: #2b2b2b; }
+.btn-success { background-color: var(--accent-olive); color: white; }
+.btn-secondary { background-color: transparent; border: 1px solid var(--input-border); color: var(--text-secondary); }
