@@ -374,10 +374,9 @@ app.post('/api/checkout', verificarToken, async (req, res, next) => {
     try {
         await connection.beginTransaction();
         const userId = req.user.id;
-        const { discountCode, discountAmount, shippingCost, total } = req.body;
-
+        const { discountCode, pointsUsed } = req.body;
         const [cartItems] = await connection.query(`
-            SELECT ci.*, p.base_price
+            SELECT ci.*, p.base_price, p.loyalty_points
             FROM cart_items ci
             JOIN products p ON ci.product_id = p.id
             WHERE ci.user_id = ?
@@ -387,16 +386,19 @@ app.post('/api/checkout', verificarToken, async (req, res, next) => {
             await connection.rollback();
             return res.status(400).json({ error: 'El carrito esta vacio' });
         }
-
         for (const item of cartItems) {
+
             const [variant] = await connection.query(
                 'SELECT id, stock_quantity FROM product_variants WHERE product_id = ? AND size <=> ? AND color <=> ?',
                 [item.product_id, item.size, item.color]
             );
+
             if (variant.length > 0) {
                 if (variant[0].stock_quantity < item.quantity) {
                     await connection.rollback();
-                    return res.status(400).json({ error: `Stock insuficiente para ${item.size} ${item.color}` });
+                    return res.status(400).json({
+                        error: `Stock insuficiente para ${item.size || ''} ${item.color || ''}`
+                    });
                 }
                 await connection.query(
                     'UPDATE product_variants SET stock_quantity = stock_quantity - ? WHERE id = ?',
@@ -404,54 +406,85 @@ app.post('/api/checkout', verificarToken, async (req, res, next) => {
                 );
             }
         }
+        let subtotal = 0;
+        for (const item of cartItems) {
+            subtotal += item.base_price * item.quantity;
+        }
+        const shippingCost = subtotal >= 999 ? 0 : 99;
+        let discountAmount = 0;
+        if (discountCode === 'MX10') {
+            discountAmount = subtotal * 0.10;
+        }
+
+        let pointsDiscount = 0;
+        if (pointsUsed && pointsUsed > 0) {
+            pointsDiscount = pointsUsed * 0.1;
+        }
+        const total = Math.max(
+            0,
+            subtotal + shippingCost - discountAmount - pointsDiscount
+        );
 
         const [orderResult] = await connection.query(
-            'INSERT INTO orders (user_id, total, discount_code, discount_amount, shipping_cost) VALUES (?, ?, ?, ?, ?)',
-            [userId, total, discountCode || null, discountAmount || 0, shippingCost || 0]
+            `INSERT INTO orders 
+            (user_id, total, discount_code, discount_amount, shipping_cost)
+            VALUES (?, ?, ?, ?, ?)`,
+            [userId, total, discountCode || null, discountAmount, shippingCost]
         );
 
         for (const item of cartItems) {
             await connection.query(
-                'INSERT INTO order_items (order_id, product_id, size, color, quantity, unit_price) VALUES (?, ?, ?, ?, ?, ?)',
-                [orderResult.insertId, item.product_id, item.size, item.color, item.quantity, item.base_price]
+                `INSERT INTO order_items
+                (order_id, product_id, size, color, quantity, unit_price)
+                VALUES (?, ?, ?, ?, ?, ?)`,
+                [
+                    orderResult.insertId,
+                    item.product_id,
+                    item.size,
+                    item.color,
+                    item.quantity,
+                    item.base_price
+                ]
             );
         }
-
-        await connection.query('DELETE FROM cart_items WHERE user_id = ?', [userId]);
-
-        // Sumar puntos al usuario
+        await connection.query(
+            'DELETE FROM cart_items WHERE user_id = ?',
+            [userId]
+        );
         let puntosGanados = 0;
+
         for (const item of cartItems) {
-            const [prod] = await connection.query('SELECT loyalty_points FROM products WHERE id = ?', [item.product_id]);
-            if (prod.length > 0) {
-                puntosGanados += (prod[0].loyalty_points || 0) * item.quantity;
-            }
+            puntosGanados += (item.loyalty_points || 0) * item.quantity;
         }
 
         if (puntosGanados > 0) {
-            await connection.query('UPDATE accounts SET points = points + ? WHERE id = ?', [puntosGanados, userId]);
+            await connection.query(
+                'UPDATE accounts SET points = points + ? WHERE id = ?',
+                [puntosGanados, userId]
+            );
         }
-
-         // Restar puntos canjeados
-        const { pointsUsed } = req.body;
         if (pointsUsed && pointsUsed > 0) {
             await connection.query(
                 'UPDATE accounts SET points = GREATEST(0, points - ?) WHERE id = ?',
                 [pointsUsed, userId]
             );
         }
-
-
         await connection.commit();
-        res.status(201).json({ mensaje: 'Pago realizado exitosamente', orderId: orderResult.insertId, total });
+        res.status(201).json({
+            mensaje: 'Pago realizado exitosamente',
+            orderId: orderResult.insertId,
+            total
+        });
+
     } catch (error) {
         await connection.rollback();
         next(error);
+
     } finally {
         connection.release();
+
     }
 });
-
 
 // Obtener puntos del usuario
 app.get('/api/user/points', verificarToken, async (req, res, next) => {

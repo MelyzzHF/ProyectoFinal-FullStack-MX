@@ -512,36 +512,6 @@
   color: #4a413a;
 }
 
-.vermas-reviews {
-  border-top: 1px solid #e4ddd4;
-  padding: 50px 40px;
-  max-width: 1300px;
-  margin: 0 auto;
-}
-
-.vermas-reviews__card {
-  padding: 20px 0;
-  border-bottom: 1px solid #ece6de;
-}
-
-.vermas-reviews__card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.vermas-reviews__user {
-  font-size: 0.92rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-
-.vermas-reviews__comment {
-  font-size: 0.9rem;
-  line-height: 1.7;
-  color: #6b6255;
-  margin-top: 6px;
-}
 
 .vermas-related {
   border-top: 1px solid #e4ddd4;
@@ -671,7 +641,6 @@
   }
 
   .vermas-desc,
-  .vermas-reviews,
   .vermas-related,
   .vermas-contact {
     padding-left: 20px;

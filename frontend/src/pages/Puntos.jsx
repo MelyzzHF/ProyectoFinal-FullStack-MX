@@ -102,7 +102,7 @@ export default function Puntos() {
           ) : (
             <>
               <div className="puntos-historial__table-header">
-                <span>Orden</span>
+                <span>No.Orden</span>
                 <span>Fecha</span>
                 <span>Total Compra</span>
                 <span style={{ textAlign: 'right' }}>Puntos Ganados</span>

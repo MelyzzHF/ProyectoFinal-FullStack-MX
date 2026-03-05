@@ -10,7 +10,6 @@ export default function VerMas() {
 
     const [producto, setProducto] = useState(null);
     const [relacionados, setRelacionados] = useState([]);
-    const [resenas, setResenas] = useState([]);
     const [imagenActual, setImagenActual] = useState(0);
     const [colorSeleccionado, setColorSeleccionado] = useState(null);
     const [tallaSeleccionada, setTallaSeleccionada] = useState(null);
@@ -30,9 +29,6 @@ export default function VerMas() {
 
                 const relRes = await api.get(`/items?limit=10`);
                 setRelacionados(relRes.data.filter(p => p.id !== parseInt(id)));
-
-                try { const revRes = await api.get(`/items/${id}/reviews`); setResenas(revRes.data); }
-                catch { setResenas([]); }
 
                 try { const favRes = await api.get('/wishlist'); setEsFavorito(favRes.data.some(f => f.product_id === parseInt(id))); }
                 catch { setEsFavorito(false); }
@@ -94,7 +90,6 @@ export default function VerMas() {
     const stockActual = varianteActual ? varianteActual.stock_quantity : 0;
     const stockTotal = variants.reduce((sum, v) => sum + v.stock_quantity, 0);
     const puntos = producto.loyalty_points || 0;
-    const promedioResenas = resenas.length > 0 ? resenas.reduce((sum, r) => sum + r.rating, 0) / resenas.length : 0;
 
     const colorHexMap = {
         'Blanco': '#FFFFFF', 'Negro': '#1a1a1a', 'Azul Marino': '#1B3A5C',
@@ -163,15 +158,6 @@ export default function VerMas() {
                         <span className="vermas-price__amount">${Number(producto.base_price).toFixed(2)}</span>
                         {puntos > 0 && <span className="vermas-price__points">+{puntos} PUNTOS</span>}
                     </div>
-
-                    {resenas.length > 0 && (
-                        <div className="vermas-reviews-summary">
-                            <span className="vermas-reviews-summary__stars">
-                                {'\u2605'.repeat(Math.round(promedioResenas))}{'\u2606'.repeat(5 - Math.round(promedioResenas))}
-                            </span>
-                            <span>{promedioResenas.toFixed(1)} ({resenas.length} resenas)</span>
-                        </div>
-                    )}
 
                     <div className="vermas-divider" />
 
@@ -260,23 +246,6 @@ export default function VerMas() {
                     </div>
                 </div>
             </section>
-
-            {resenas.length > 0 && (
-                <section className="vermas-reviews">
-                    <h2 className="vermas-desc__title">Resenas</h2>
-                    {resenas.map((r) => (
-                        <div key={r.id} className="vermas-reviews__card">
-                            <div className="vermas-reviews__card-header">
-                                <span className="vermas-reviews__user">{r.full_name || 'Usuario'}</span>
-                                <span className="vermas-reviews-summary__stars">{'\u2605'.repeat(r.rating)}{'\u2606'.repeat(5 - r.rating)}</span>
-                            </div>
-                            <div className="vermas-reviews__comment">{r.comment}</div>
-                            {r.photo_path && <img src={`http://localhost:3000${r.photo_path}`} alt="Foto" style={{ maxWidth: '150px', marginTop: '8px', borderRadius: '8px' }} />}
-                        </div>
-                    ))}
-                </section>
-            )}
-
             {relacionados.length > 0 && (
                 <section className="vermas-related">
                     <h2 className="vermas-desc__title">Prendas Relacionadas</h2>
@@ -297,7 +266,7 @@ export default function VerMas() {
             <section className="vermas-contact">
                 <div>
                     <div className="vermas-contact__title">Contacto</div>
-                    <div className="vermas-contact__text">contacto@mxstudio.com<br />+52 (81) 1234-5678<br />Monterrey, N.L., Mexico</div>
+                    <div className="vermas-contact__text">soportemxstudio@mxstudio.com<br />+52 (81) 1234-5678<br />Monterrey, N.L., Mexico</div>
                 </div>
                 <div>
                     <div className="vermas-variation__label" style={{ marginBottom: '14px' }}>Siguenos</div>
