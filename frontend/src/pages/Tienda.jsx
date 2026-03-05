@@ -89,7 +89,7 @@ export default function Tienda() {
   // CRUD
   const cargarProductos = useCallback(async () => {
     try {
-      const response = await api.get(`/items?search=${busqueda}&category=${categoria}&limit=100`);
+      const response = await api.get(`/items?search=${busqueda}&category=${categoria}`);
       setProductos(response.data);
     } catch (error) {
       console.error("Error al cargar productos:", error);

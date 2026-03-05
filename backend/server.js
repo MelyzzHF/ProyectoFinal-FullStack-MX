@@ -110,8 +110,7 @@ app.post('/api/auth/login', async (req, res, next) => {
 // RUTAS CRUD PRINCIPAL
 app.get('/api/items', async (req, res, next) => {
     try {
-        const { search, category, page = 1, limit = 100 } = req.query;
-        const offset = (page - 1) * limit;
+        const { search, category} = req.query;
 
         let query = 'SELECT p.*, c.label as category_name, i.image_path FROM products p LEFT JOIN categories c ON p.category_id = c.id LEFT JOIN product_images i ON p.id = i.product_id AND i.is_primary = TRUE WHERE 1=1';
         const params = [];
@@ -124,10 +123,6 @@ app.get('/api/items', async (req, res, next) => {
             query += ' AND c.label = ?';
             params.push(category);
         }
-
-        query += ' LIMIT ? OFFSET ?';
-        // Convertimos a números para el paginado
-        params.push(Number(limit), Number(offset));
 
         const [items] = await pool.query(query, params);
         res.json(items);
