@@ -1,18 +1,25 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Tienda from './pages/Tienda';
-import AgregarPrenda from './pages/AgregarPrenda'; // <-- 1. Importa el nuevo componente
+import VerMas from './pages/verMas';
+import Carrito from './pages/carrito';
+import Favoritos from './pages/Favoritos';
+import Puntos from './pages/Puntos';
+import AgregarPrenda from './pages/AgregarPrenda';
 
 function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/tienda" element={<Tienda />} />
-        {/* 2. Añade la ruta aquí abajo */}
+        <Route path="/producto/:id" element={<VerMas />} />
+        <Route path="/carrito" element={<Carrito />} />
+        <Route path="/favoritos" element={<Favoritos />} />
+        <Route path="/mis-puntos" element={<Puntos />} />
         <Route path="/agregar-prenda" element={<AgregarPrenda />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
 

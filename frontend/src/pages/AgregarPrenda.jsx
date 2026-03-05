@@ -13,10 +13,9 @@ export default function AgregarPrenda() {
     brand: '',
     basePrice: '',
     description: '',
-    categoryId: '1' // Por defecto: 1 (Hombre)
+    categoryId: '1' 
   });
   
-  // Estado separado para el archivo de imagen
   const [image, setImage] = useState(null);
 
   const handleChange = (e) => {
@@ -31,7 +30,6 @@ export default function AgregarPrenda() {
     e.preventDefault();
     setMensaje({ texto: '', tipo: '' });
 
-    // Para enviar archivos, DEBEMOS usar FormData en lugar de un objeto JSON
     const data = new FormData();
     data.append('sku', formData.sku);
     data.append('name', formData.name);
@@ -48,7 +46,6 @@ export default function AgregarPrenda() {
     }
 
     try {
-      // Usamos nuestro servicio api.js, que ya manda el Token automáticamente
       await api.post('/items', data, {
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -56,7 +53,7 @@ export default function AgregarPrenda() {
       });
       
       setMensaje({ texto: '¡Prenda guardada exitosamente en el catálogo!', tipo: 'exito' });
-      setTimeout(() => navigate('/tienda'), 2000); // Regresar a la tienda después de 2 segundos
+      setTimeout(() => navigate('/tienda'), 2000); 
     } catch (error) {
       setMensaje({ texto: error.response?.data?.error || 'Error al guardar la prenda.', tipo: 'error' });
     }

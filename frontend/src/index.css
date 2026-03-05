@@ -17,9 +17,6 @@ body {
   background-color: var(--bg-color);
   margin: 0;
   color: var(--text-primary);
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 100vh;
 }
 
@@ -35,7 +32,6 @@ body {
   box-sizing: border-box;
 }
 
-/* Tipografía de la marca */
 .brand-title {
   font-family: var(--font-serif);
   font-size: 3rem;
@@ -53,7 +49,6 @@ body {
   margin-bottom: 30px;
 }
 
-/* Botones y Formularios */
 input {
   width: 100%;
   padding: 12px;
@@ -82,3 +77,25 @@ button {
 .btn-primary { background-color: var(--accent-taupe); color: #2b2b2b; }
 .btn-success { background-color: var(--accent-olive); color: white; }
 .btn-secondary { background-color: transparent; border: 1px solid var(--input-border); color: var(--text-secondary); }
+
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.logo-container {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background-color: #e9e3db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+
+.logo-container img {
+  width: 350px;
+}
