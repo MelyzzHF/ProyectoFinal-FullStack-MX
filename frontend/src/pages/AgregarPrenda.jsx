@@ -5,7 +5,7 @@ import api from '../services/api';
 export default function AgregarPrenda() {
   const navigate = useNavigate();
   const [mensaje, setMensaje] = useState({ texto: '', tipo: '' });
-  
+
   // Estado para guardar todos los campos del formulario
   const [formData, setFormData] = useState({
     sku: '',
@@ -13,9 +13,11 @@ export default function AgregarPrenda() {
     brand: '',
     basePrice: '',
     description: '',
-    categoryId: '1' 
+    materialsCare: '',
+    stylingTips: '',
+    categoryId: '1'
   });
-  
+
   const [image, setImage] = useState(null);
 
   const handleChange = (e) => {
@@ -36,8 +38,10 @@ export default function AgregarPrenda() {
     data.append('brand', formData.brand);
     data.append('basePrice', formData.basePrice);
     data.append('description', formData.description);
+    data.append('materialsCare', formData.materialsCare);
+    data.append('stylingTips', formData.stylingTips);
     data.append('categoryId', formData.categoryId);
-    
+
     if (image) {
       data.append('image', image);
     } else {
@@ -51,9 +55,9 @@ export default function AgregarPrenda() {
           'Content-Type': 'multipart/form-data'
         }
       });
-      
+
       setMensaje({ texto: '¡Prenda guardada exitosamente en el catálogo!', tipo: 'exito' });
-      setTimeout(() => navigate('/tienda'), 2000); 
+      setTimeout(() => navigate('/tienda'), 2000);
     } catch (error) {
       setMensaje({ texto: error.response?.data?.error || 'Error al guardar la prenda.', tipo: 'error' });
     }
@@ -67,7 +71,7 @@ export default function AgregarPrenda() {
 
       <div style={{ backgroundColor: 'var(--card-bg)', padding: '30px', borderRadius: '4px', border: '1px solid var(--input-border)' }}>
         <h2 style={{ fontFamily: 'var(--font-serif)', marginTop: 0, borderBottom: '1px solid #eee', paddingBottom: '15px' }}>Alta de Nueva Prenda</h2>
-        
+
         {mensaje.texto && (
           <p style={{ color: mensaje.tipo === 'error' ? 'var(--danger-soft)' : 'var(--accent-olive)', fontWeight: 'bold' }}>
             {mensaje.texto}
@@ -75,7 +79,7 @@ export default function AgregarPrenda() {
         )}
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          
+
           <div style={{ display: 'flex', gap: '15px' }}>
             <div style={{ flex: 1 }}>
               <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>SKU (Código único)</label>
@@ -97,9 +101,9 @@ export default function AgregarPrenda() {
             </div>
             <div style={{ flex: 1 }}>
               <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Categoría</label>
-              <select 
-                name="categoryId" 
-                value={formData.categoryId} 
+              <select
+                name="categoryId"
+                value={formData.categoryId}
                 onChange={handleChange}
                 style={{ width: '100%', padding: '12px', border: '1px solid var(--input-border)', backgroundColor: '#fafafa', fontFamily: 'var(--font-sans)' }}
               >
@@ -111,22 +115,42 @@ export default function AgregarPrenda() {
           </div>
 
           <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Descripción de la prenda</label>
-          <textarea 
-            name="description" 
-            value={formData.description} 
-            onChange={handleChange} 
-            placeholder="Materiales, cuidados, estilo..."
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            placeholder="Qué es, cómo es..."
+            style={{ width: '100%', padding: '12px', border: '1px solid var(--input-border)', minHeight: '80px', fontFamily: 'var(--font-sans)', boxSizing: 'border-box' }}
+            required
+          />
+
+          <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Materiales y Cuidados</label>
+          <textarea
+            name="materialsCare"
+            value={formData.materialsCare}
+            onChange={handleChange}
+            placeholder="Materiales, cuidados..."
+            style={{ width: '100%', padding: '12px', border: '1px solid var(--input-border)', minHeight: '80px', fontFamily: 'var(--font-sans)', boxSizing: 'border-box' }}
+            required
+          />
+
+           <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Como Combinarlo</label>
+          <textarea
+            name="stylingTips"
+            value={formData.stylingTips}
+            onChange={handleChange}
+            placeholder="Cómo usarlo, qué combina..."
             style={{ width: '100%', padding: '12px', border: '1px solid var(--input-border)', minHeight: '80px', fontFamily: 'var(--font-sans)', boxSizing: 'border-box' }}
             required
           />
 
           <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Imagen Principal</label>
-          <input 
-            type="file" 
-            accept="image/*" 
-            onChange={handleFileChange} 
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
             style={{ padding: '10px', backgroundColor: '#fff' }}
-            required 
+            required
           />
 
           <button type="submit" className="btn-success" style={{ marginTop: '15px' }}>Guardar Prenda</button>

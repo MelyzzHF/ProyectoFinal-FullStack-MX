@@ -134,32 +134,57 @@ app.get('/api/items', async (req, res, next) => {
     } catch (error) { next(error); }
 });
 
-// Vista detalle
+// Vista detalle mejorada
 app.get('/api/items/:id', async (req, res, next) => {
     try {
-        const [product] = await pool.query('SELECT * FROM products WHERE id = ?', [req.params.id]);
-        if (product.length === 0) return res.status(404).json({ error: 'Prenda no encontrada' });
-
-        const [images] = await pool.query('SELECT id, image_path, is_primary FROM product_images WHERE product_id = ?', [req.params.id]);
-        const [variants] = await pool.query('SELECT size, color, stock_quantity FROM product_variants WHERE product_id = ?', [req.params.id]);
-
-        res.json({ ...product[0], images, variants });
-    } catch (error) { next(error); }
+        const productId = req.params.id;
+        const [product] = await pool.query('SELECT * FROM products WHERE id = ?', [productId]);
+        
+        if (product.length === 0) {
+            return res.status(404).json({ error: 'Prenda no encontrada' });
+        }
+        const [images] = await pool.query(
+            'SELECT id, image_path, is_primary FROM product_images WHERE product_id = ? ORDER BY is_primary DESC', 
+            [productId]
+        );
+        const [variants] = await pool.query(
+            'SELECT id, size, color, stock_quantity FROM product_variants WHERE product_id = ?', 
+            [productId]
+        );
+        res.json({ 
+            ...product[0], 
+            images, 
+            variants 
+        });
+    } catch (error) { 
+        console.error("Error al cargar detalle:", error);
+        next(error); 
+    }
 });
-
 
 app.post('/api/items', verificarToken, soloAdmin, upload.single('image'), async (req, res, next) => {
     const connection = await pool.getConnection();
     try {
         await connection.beginTransaction();
-        const { sku, name, brand, basePrice, description, categoryId } = req.body;
+        
+        const { sku,name, brand, basePrice,description,categoryId,materialsCare,stylingTips } = req.body;
+        if (!name || !brand || !basePrice) {
+            return res.status(400).json({ error: "Nombre, Marca y Precio son obligatorios." });
+        }
+        
+        console.log(req.body);
+
+        console.log("Holaa");
 
         const [result] = await connection.query(
-            'INSERT INTO products (sku, name, brand, base_price, description, category_id) VALUES (?, ?, ?, ?, ?, ?)',
-            [sku, name, brand, basePrice, description, categoryId || null]
+            `INSERT INTO products 
+            (sku, name, brand, base_price, description, category_id, materials_care, styling_tips) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                sku || null, name, brand, parseFloat(basePrice),description || null, parseInt(categoryId) || null, materialsCare || null, stylingTips || null   
+            ]
         );
         const productId = result.insertId;
-
         if (req.file) {
             const imagePath = `/uploads/${req.file.filename}`;
             await connection.query(
@@ -167,12 +192,12 @@ app.post('/api/items', verificarToken, soloAdmin, upload.single('image'), async 
                 [productId, imagePath]
             );
         }
-
         await connection.commit();
         res.status(201).json({ mensaje: 'Prenda creada con éxito', id: productId });
     } catch (error) {
         await connection.rollback();
-        next(error);
+        console.error("Error MySQL:", error.sqlMessage || error.message);
+        res.status(500).json({ error: "Error al insertar en la base de datos", details: error.sqlMessage });
     } finally {
         connection.release();
     }
@@ -190,10 +215,14 @@ app.delete('/api/items/:id', verificarToken, soloAdmin, async (req, res, next) =
 
 app.put('/api/items/:id', verificarToken, soloAdmin, async (req, res, next) => {
     try {
-        const { name, brand, basePrice, description, categoryId } = req.body;
+        console.log("Adios");
+        console.log(req.body);
+        console.log(req);
+        const { name, brand, basePrice, description, categoryId, materialsCare, stylingTips } = req.body;
+        console.log(materialsCare, stylingTips)
         const [result] = await pool.query(
-            'UPDATE products SET name = ?, brand = ?, base_price = ?, description = ?, category_id = ? WHERE id = ?',
-            [name, brand, basePrice, description, categoryId, req.params.id]
+            'UPDATE products SET name = ?, brand = ?, base_price = ?, description = ?, category_id = ?, materials_care = ?, styling_tips = ? WHERE id = ?',
+            [name, brand, basePrice, description, categoryId,materialsCare, stylingTips, req.params.id]
         );
         if (result.affectedRows === 0) return res.status(404).json({ error: 'Prenda no encontrada' });
         res.json({ mensaje: 'Prenda actualizada exitosamente' });
@@ -571,5 +600,59 @@ app.use((err, req, res, next) => {
     });
 });
 
+
+// Post de Variantes
+app.post('/api/items/:id/variants', verificarToken, soloAdmin, async (req, res, next) => {
+    try {
+        const productId = req.params.id;
+        const { variants } = req.body; // Se espera un array: [{size: 'M', color: 'Rojo', stock_quantity: 10}, ...]
+
+        // Llamada al Store Procedure
+        // Convertimos el array a string JSON para que MySQL lo entienda
+        await pool.query(
+            'CALL sp_insert_product_variants(?, ?)',
+            [productId, JSON.stringify(variants)]
+        );
+
+        res.status(201).json({ mensaje: 'Variantes actualizadas correctamente' });
+    } catch (error) {
+        console.error("Error al insertar variantes:", error);
+        next(error);
+    }
+});
+
+
+// PATCH
+app.patch('/api/items/:id/price', verificarToken, soloAdmin, async (req, res, next) => {
+    try {
+        const productId = req.params.id;
+        const { basePrice } = req.body;
+        if (basePrice === undefined || basePrice < 0) {
+            return res.status(400).json({ error: 'Se requiere un precio base válido.' });
+        }
+        const [result] = await pool.query(
+            'UPDATE products SET base_price = ? WHERE id = ?',
+            [parseFloat(basePrice), productId]
+        );
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Prenda no encontrada.' });
+        }
+        res.json({ 
+            mensaje: 'Precio actualizado exitosamente', 
+            productId, 
+            nuevoPrecio: basePrice 
+        });
+    } catch (error) {
+        console.error("Error al actualizar precio:", error);
+        next(error);
+    }
+});
+
+
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor M&X Studio activo en puerto ${PORT}`));
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, () => console.log(`Servidor M&X Studio activo en puerto ${PORT}`));
+}
+
+module.exports = app;

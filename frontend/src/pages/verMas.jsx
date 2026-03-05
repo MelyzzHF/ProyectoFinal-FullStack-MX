@@ -234,7 +234,7 @@ export default function VerMas() {
                 <div className="vermas-desc__grid">
                     <div className="vermas-desc__card">
                         <div className="vermas-desc__card-title">Materiales y Cuidados</div>
-                        <div className="vermas-desc__card-text">{producto.materials_care || 'Informacion no disponible.'}</div>
+                        <div className="vermas-desc__card-text">{producto.materials_care}</div>
                     </div>
                     <div className="vermas-desc__card">
                         <div className="vermas-desc__card-title">Descripcion</div>
@@ -242,7 +242,7 @@ export default function VerMas() {
                     </div>
                     <div className="vermas-desc__card">
                         <div className="vermas-desc__card-title">Como Combinarlo</div>
-                        <div className="vermas-desc__card-text">{producto.styling_tips || 'Combina con distintas prendas para diferentes looks.'}</div>
+                        <div className="vermas-desc__card-text">{producto.styling_tips }</div>
                     </div>
                 </div>
             </section>
