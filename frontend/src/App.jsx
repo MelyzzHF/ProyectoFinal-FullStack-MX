@@ -6,6 +6,8 @@ import Carrito from './pages/carrito';
 import Favoritos from './pages/Favoritos';
 import Puntos from './pages/Puntos';
 import AgregarPrenda from './pages/AgregarPrenda';
+import UsuariosAdmin from './pages/usuariosAdmin';
+
 
 function App() {
   return (
@@ -18,9 +20,12 @@ function App() {
         <Route path="/favoritos" element={<Favoritos />} />
         <Route path="/mis-puntos" element={<Puntos />} />
         <Route path="/agregar-prenda" element={<AgregarPrenda />} />
+        <Route path="/admin/usuarios" element={<UsuariosAdmin />} />
       </Routes>
     </Router>
   );
 }
 
 export default App;
+
+

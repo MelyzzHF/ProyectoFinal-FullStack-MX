@@ -650,4 +650,40 @@ if (process.env.NODE_ENV !== 'test') {
     app.listen(PORT, () => console.log(`Servidor M&X Studio activo en puerto ${PORT}`));
 }
 
+
+
+// Cambios realizados a partir de la retroalimentación, quisimos añadir la opinión del profesor
+// como si fuera una petición del cliente. 
+
+app.get('/api/users', verificarToken, soloAdmin, async (req, res, next) => {
+    try {
+        const [users] = await pool.query(
+            'SELECT id, full_name, email, role, points, has_used_welcome_discount FROM accounts ORDER BY id DESC'
+        );
+        res.json(users);
+    } catch (error) { 
+        next(error); 
+    }
+});
+
+app.delete('/api/users/:id', verificarToken, soloAdmin, async (req, res, next) => {
+    try {
+        const userIdToDelete = req.params.id;
+
+        if (userIdToDelete == req.user.id) {
+            return res.status(400).json({ error: 'Operación denegada: No puedes eliminar tu propia cuenta.' });
+        }
+
+        const [result] = await pool.query('DELETE FROM accounts WHERE id = ?', [userIdToDelete]);
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+        
+        res.json({ mensaje: 'Usuario eliminado exitosamente' });
+    } catch (error) { 
+        next(error); 
+    }
+});
+
 module.exports = app;

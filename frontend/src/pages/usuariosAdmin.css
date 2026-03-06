@@ -1,0 +1,136 @@
+
+.admin-usuarios-container {
+  min-height: 100vh;
+  background-color: #f3efe9; 
+  padding: 40px;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e4ddd4;
+}
+
+.admin-header h2 {
+  font-family: var(--font-serif);
+  font-size: 2.2rem;
+  font-weight: 400;
+  color: #2C2421;
+  margin: 0;
+}
+
+.admin-header button {
+  padding: 10px 24px;
+  background-color: transparent;
+  border: 1.5px solid #d4ccc2;
+  border-radius: 8px;
+  color: #2C2421;
+  font-family: var(--font-serif);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.admin-header button:hover {
+  background-color: #2C2421;
+  border-color: #2C2421;
+  color: #e8e0d6;
+  letter-spacing: 2px;
+}
+.usuarios-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(44, 36, 33, 0.05); 
+}
+
+.usuarios-table th {
+  background-color: #2C2421;
+  color: #e8e0d6;
+  text-align: left;
+  padding: 18px 20px;
+  font-family: var(--font-serif);
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.usuarios-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #ece6de;
+  color: #2C2421;
+  font-size: 0.95rem;
+}
+
+.usuarios-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.usuarios-table tbody tr:hover {
+  background-color: rgba(236, 230, 222, 0.4);
+}
+
+.usuarios-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.btn-eliminar {
+  padding: 8px 16px;
+  font-size: 0.75rem;
+  background-color: transparent;
+  border: 1.5px solid #d4a0a0;
+  color: #b54040;
+  cursor: pointer;
+  font-family: var(--font-serif);
+  letter-spacing: 1px;
+  border-radius: 8px;
+  transition: all 0.25s ease;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.btn-eliminar:hover {
+  background-color: #b54040;
+  border-color: #b54040;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(181, 64, 64, 0.2);
+}
+
+.error-msg {
+  background-color: rgba(181, 64, 64, 0.06);
+  color: #b54040;
+  border: 1px solid rgba(181, 64, 64, 0.15);
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .admin-usuarios-container {
+    padding: 20px;
+  }
+
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .usuarios-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}

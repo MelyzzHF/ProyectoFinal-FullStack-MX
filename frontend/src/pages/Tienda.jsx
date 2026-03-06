@@ -8,8 +8,8 @@ export default function Tienda() {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   // --- ESTADOS PARA EL STOCK ---
-  const [colorActual, setColorActual] = useState('Blanco'); 
-  const [stockLocal, setStockLocal] = useState({}); 
+  const [colorActual, setColorActual] = useState('Blanco');
+  const [stockLocal, setStockLocal] = useState({});
   const [guardandoStock, setGuardandoStock] = useState(false);
 
   const tallasDisponibles = ['S', 'M', 'L'];
@@ -292,7 +292,7 @@ export default function Tienda() {
                       className="modal-form__input"
                     />
                     <button
-                      type="button" 
+                      type="button"
                       onClick={handleActualizarPrecio}
                       className="btn-success"
                       style={{ padding: '0 10px', whiteSpace: 'nowrap' }}
@@ -469,10 +469,14 @@ export default function Tienda() {
             <input type="text" placeholder="Buscar..." value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)} className="tienda-header__search-input" />
           </div>
+
           <span className="tienda-header__greeting">Hola, {user.fullName}</span>
           <button className="tienda-header__btn" onClick={() => navigate('/carrito')}>&#128722; CARRITO</button>
           <button className="tienda-header__btn" onClick={() => navigate('/favoritos')}>{'\u2661'} FAVORITOS</button>
           <button className="tienda-header__btn" onClick={() => navigate('/mis-puntos')}>{'\u2605'} PUNTOS</button>
+
+          {user.role === 'admin' && (
+            <button className="tienda-header__btn" onClick={() => navigate('/admin/usuarios')}>USUARIOS</button> )}
           <button onClick={handleLogout} className="tienda-header__btn tienda-header__btn--logout">SALIR</button>
         </div>
       </header>

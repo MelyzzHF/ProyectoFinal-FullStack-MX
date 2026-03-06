@@ -816,3 +816,107 @@
 .tienda-header__logo-img:hover {
   opacity: 0.8;
 }
+
+@media (max-width: 768px) {
+  .tienda-header {
+    flex-direction: column;
+    padding: 16px 15px;
+    gap: 16px;
+    height: auto; 
+  }
+
+  .tienda-header__actions {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    gap: 8px; 
+  }
+
+  .tienda-header__greeting {
+    width: 100%;
+    text-align: center;
+    order: -2;
+    margin-bottom: 4px;
+  }
+
+  .tienda-header__search-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    order: -1;
+    margin-bottom: 8px;
+  }
+
+  .tienda-header__search-input,
+  .tienda-header__search-input:focus {
+    width: 100%;
+    max-width: 280px; 
+  }
+
+  .tienda-header__btn {
+    padding: 7px 12px;
+    font-size: 0.7rem;
+  }
+
+  .tienda-header__nav {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-top: 12px;
+    border-top: 1px solid rgba(232, 224, 214, 0.1); 
+  }
+
+  .modal-content {
+    padding: 24px 20px;
+  }
+
+  .modal-form__row {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .modal-images__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .tienda-header__logo {
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+  }
+
+  .tienda-header__greeting {
+    display: none; 
+  }
+
+  .tienda-hero__title {
+    font-size: 1.6rem;
+  }
+
+  .tienda-card__img-container {
+    height: 280px;
+  }
+
+  .tienda-card__admin-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .modal-images__grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .modal-tabs__btn {
+    flex: 1 1 100%;
+    border-bottom: 1px solid #e4ddd4;
+  }
+  
+  .modal-tabs__btn--active {
+    border-bottom: 2.5px solid #2C2421;
+  }
+}
